@@ -113,10 +113,16 @@ membershipsRouter.route('/register')
     res.setHeader('Content-Type', 'application/json');
     next();
   })
-  .post(cpUpload, async (req, res, next ) => {
-      console.log(`filePath: ${filePath}`);
+  .post(async (req, res, next ) => {
+    console.log(`filePath: ${filePath}`);
     console.log('/register successfully triggered for post');
-    console.log(req.body);
+
+    cpUpload(req, res, (err) => {
+      console.log(req.files);
+      console.log(`if err occured, here it is: ${err}`);
+    });
+
+
     let finalResults = {
       "status" : false,
       "payload" : null
