@@ -9,7 +9,9 @@ const membershipsRouter = express.Router();
 const multer = require('multer');
 
 const milliToken = Date.now().toString();
-const upload = multer({dest: __dirname + '/uploads/' + milliToken});
+const filePath = __dirname + "/../../../uploads/" + milliToken;
+console.log(`filePath: ${filePath}`);
+const upload = multer({dest: filePath});
 
 const Service = require( './class.service');
 const Registration = require('./class.registration');
@@ -37,7 +39,7 @@ const corsOptions = {
 }; // corsOptions
 
 // Express Configuration
-membershipsRouter.use(bodyParser.json());
+//membershipsRouter.use(bodyParser.json());
 
 
 //Lets load in all our classes
@@ -96,28 +98,31 @@ membershipsRouter.route('/renew')
   })
 ; // /renew
 
+const cpUpload = upload.fields(
+  [
+    {
+      name: 'photoProfilePic', maxCount: 1
+    },
+    {
+      name: 'fileCertificate', maxCount: 1
+    }
+  ]);
+
 membershipsRouter.route('/register')
   .all((req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     next();
   })
-  .post(upload.fields(
-    [
-      {
-        name: 'photoProfilePic', maxCount: 1
-      },
-      {
-        name: 'fileCertificate', maxCount: 1
-      }
-    ]), async (req, res, next ) => {
+  .post(cpUpload, async (req, res, next ) => {
+      console.log(`filePath: ${filePath}`);
     console.log('/register successfully triggered for post');
-    console.log(req);
+    console.log(req.body);
     let finalResults = {
       "status" : false,
       "payload" : null
     }
 
-    Registration.saveUploadedFiles(req.body, Service).then(
+    Registration.saveUploadedFiles(req, Service).then(
       //
     ).catch((err) => {
       console.log('Registration.saveUploadedFiles has failed. because of: ' + err);

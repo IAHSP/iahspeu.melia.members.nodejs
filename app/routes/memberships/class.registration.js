@@ -7,9 +7,10 @@ class Registration {
     this.currentError = "Default Error Text for Registration Class";
   }
 
-  saveUploadedFiles(body, Service) {
+  saveUploadedFiles(req, Service) {
     //
-    console.log('being called from class.registration.js. saveUploadedFiles was called.');
+    //console.log('being called from class.registration.js. saveUploadedFiles was called.');
+    //console.log(req);
   }
 
 

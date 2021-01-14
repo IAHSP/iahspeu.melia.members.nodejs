@@ -33,7 +33,7 @@ const corsOptions = {
 
 
 
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 
 //app.options('/memberships', cors(corsOptions)); // enable pre-flight request
 app.use('/memberships', membershipsRouter);
