@@ -8,11 +8,6 @@ const membershipsRouter = express.Router();
 
 const multer = require('multer');
 
-const milliToken = Date.now().toString();
-const filePath = __dirname + "/../../../uploads/" + milliToken;
-console.log(`filePath: ${filePath}`);
-const upload = multer({dest: filePath});
-
 const Service = require( './class.service');
 const Registration = require('./class.registration');
 const UnapprovedUsers = require('./class.unapprovedusers');
@@ -98,28 +93,53 @@ membershipsRouter.route('/renew')
   })
 ; // /renew
 
-const cpUpload = upload.fields(
-  [
-    {
-      name: 'photoProfilePic', maxCount: 1
-    },
-    {
-      name: 'fileCertificate', maxCount: 1
-    }
-  ]);
-
 membershipsRouter.route('/register')
   .all((req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
     next();
   })
   .post(async (req, res, next ) => {
+    const milliToken = Date.now().toString();
+    const filePath = __dirname + "/../../../uploads/" + milliToken;
+    const upload = multer({dest: filePath});
+    const cpUpload = upload.fields(
+      [
+        {
+          name: 'photoProfilePic', maxCount: 1
+        },
+        {
+          name: 'fileCertificate', maxCount: 1
+        }
+      ]);
+
+
     console.log(`filePath: ${filePath}`);
     console.log('/register successfully triggered for post');
 
     cpUpload(req, res, (err) => {
+      const fs = require('fs');
+
       console.log(req.files);
+      console.log(req.body);
       console.log(`if err occured, here it is: ${err}`);
+
+      if (typeof req.files !== 'undefined') {
+        const fileKeys = Object.keys(req.files);
+        fileKeys.forEach((key) => {
+          //console.log(req.files[key]);
+          const originalFilename = req.files[key][0].originalname;
+          const originalFileExtension = originalFilename.split('.').pop();
+          const currentFilename = req.files[key][0].filename;
+          const currentPath = req.files[key][0].destination;
+          const newFilename = `${key}.${originalFileExtension}`;
+          console.log(`newFilename: ${newFilename}`);
+
+          fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
+            if ( err ) console.log('Error trying to rename file: ' + err);
+          });
+        });
+
+      }
     });
 
 
@@ -127,12 +147,6 @@ membershipsRouter.route('/register')
       "status" : false,
       "payload" : null
     }
-
-    Registration.saveUploadedFiles(req, Service).then(
-      //
-    ).catch((err) => {
-      console.log('Registration.saveUploadedFiles has failed. because of: ' + err);
-    });
 
     // Determine function successes.
     Registration.createNewUser(req.body, Service)
