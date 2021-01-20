@@ -109,6 +109,9 @@ membershipsRouter.route('/register')
         },
         {
           name: 'fileCertificate', maxCount: 1
+        },
+        {
+          name: 'photosWorkExamples[]', maxCount: 10
         }
       ]);
 
@@ -126,17 +129,35 @@ membershipsRouter.route('/register')
       if (typeof req.files !== 'undefined') {
         const fileKeys = Object.keys(req.files);
         fileKeys.forEach((key) => {
-          //console.log(req.files[key]);
-          const originalFilename = req.files[key][0].originalname;
-          const originalFileExtension = originalFilename.split('.').pop();
-          const currentFilename = req.files[key][0].filename;
-          const currentPath = req.files[key][0].destination;
-          const newFilename = `${key}.${originalFileExtension}`;
-          console.log(`newFilename: ${newFilename}`);
+          if (key === 'photosWorkExamples[]') {
+            //handle the multi upload
+            req.files[key].forEach((v, k) => {
+              //console.log(`k: ${k} , v: ${v}`);
+              //console.log(v);
+              const originalFilename = v.originalname;
+              const originalFileExtension = originalFilename.split('.').pop();
+              const currentFilename = v.filename;
+              const currentPath = v.destination;
+              const newFilename = `photosWorkExamples-${k}.${originalFileExtension}`;
+              console.log(`newFilename: ${newFilename}`);
 
-          fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
-            if ( err ) console.log('Error trying to rename file: ' + err);
-          });
+              fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
+                if ( err ) console.log('Error trying to rename file: ' + err);
+              });
+            });
+          } else {
+            //all other uploads
+            const originalFilename = req.files[key][0].originalname;
+            const originalFileExtension = originalFilename.split('.').pop();
+            const currentFilename = req.files[key][0].filename;
+            const currentPath = req.files[key][0].destination;
+            const newFilename = `${key}.${originalFileExtension}`;
+            console.log(`newFilename: ${newFilename}`);
+
+            fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
+              if ( err ) console.log('Error trying to rename file: ' + err);
+            });
+          }
         });
 
       }
