@@ -2,7 +2,7 @@
 // ========
 var stripeKeys = require("../../utilities/data/stripe-keys.json");
 var serviceAccount = require("../../utilities/data/firebase-service-account-key.json");
-var otherSecrets  = require("../../utilities/data/firebase-service-account-key.json");
+var otherSecrets  = require("../../utilities/data/other-secrets.json");
 
 const admin = require("firebase-admin");
 const stripe = require('stripe')(stripeKeys.secret_key);
@@ -101,6 +101,7 @@ class Service {
 
 
     const strPhotoURL = `${otherSecrets.cloudfront_url}/web/images/member-no-photo.jpg`;
+    console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still
     //still need to pay for registration

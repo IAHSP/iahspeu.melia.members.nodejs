@@ -6,7 +6,6 @@ const bodyParser = require("body-parser");
 
 const membershipsRouter = express.Router();
 
-const multer = require('multer');
 
 const Service = require( './class.service');
 const Registration = require('./class.registration');
@@ -33,8 +32,8 @@ const corsOptions = {
   } // origin: function()
 }; // corsOptions
 
-// Express Configuration
-//membershipsRouter.use(bodyParser.json());
+// parse application/json
+const jsonBodyParser = bodyParser.json();
 
 
 //Lets load in all our classes
@@ -99,78 +98,35 @@ membershipsRouter.route('/register')
     next();
   })
   .post(async (req, res, next ) => {
-    const milliToken = Date.now().toString();
-    const filePath = __dirname + "/../../../uploads/" + milliToken;
-    const upload = multer({dest: filePath});
-    const cpUpload = upload.fields(
-      [
-        {
-          name: 'photoProfilePic', maxCount: 1
-        },
-        {
-          name: 'fileCertificate', maxCount: 1
-        },
-        {
-          name: 'photosWorkExamples[]', maxCount: 10
-        }
-      ]);
-
-
-    console.log(`filePath: ${filePath}`);
-    console.log('/register successfully triggered for post');
-
-    cpUpload(req, res, (err) => {
-      const fs = require('fs');
-
-      console.log(req.files);
-      console.log(req.body);
-      console.log(`if err occured, here it is: ${err}`);
-
-      if (typeof req.files !== 'undefined') {
-        const fileKeys = Object.keys(req.files);
-        fileKeys.forEach((key) => {
-          if (key === 'photosWorkExamples[]') {
-            //handle the multi upload
-            req.files[key].forEach((v, k) => {
-              //console.log(`k: ${k} , v: ${v}`);
-              //console.log(v);
-              const originalFilename = v.originalname;
-              const originalFileExtension = originalFilename.split('.').pop();
-              const currentFilename = v.filename;
-              const currentPath = v.destination;
-              const newFilename = `photosWorkExamples-${k}.${originalFileExtension}`;
-              console.log(`newFilename: ${newFilename}`);
-
-              fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
-                if ( err ) console.log('Error trying to rename file: ' + err);
-              });
-            });
-          } else {
-            //all other uploads
-            const originalFilename = req.files[key][0].originalname;
-            const originalFileExtension = originalFilename.split('.').pop();
-            const currentFilename = req.files[key][0].filename;
-            const currentPath = req.files[key][0].destination;
-            const newFilename = `${key}.${originalFileExtension}`;
-            console.log(`newFilename: ${newFilename}`);
-
-            fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
-              if ( err ) console.log('Error trying to rename file: ' + err);
-            });
-          }
-        });
-
-      }
-    });
-
-
     let finalResults = {
       "status" : false,
       "payload" : null
     }
+    const milliToken = Date.now().toString();
+    const filePath = __dirname + "/../../../uploads/" + milliToken;
 
-    // Determine function successes.
-    Registration.createNewUser(req.body, Service)
+    fileSaveSuccess = Registration.saveUploadedFiles(req, res, filePath);
+
+    if (fileSaveSuccess !== true) {
+      finalResults = {
+        "status" : false,
+        "payload" : fileSaveSuccess
+      }
+
+      //stop execution early and return this error
+      res.setHeader('Content-Type', 'application/json');
+      res.status(200).send(JSON.stringify(finalResults));
+      res.end();
+      console.log('failed on Registration,saveUploadedFiles');
+      console.log(fileSaveSuccess.payload);
+    }
+
+    // If we are here, then the files were successfully saved,
+    // so now we can create our user.
+    console.log('about to run createNewUser.  the payload is: ');
+    console.log(Registration.userData);
+
+    Registration.createNewUser(Registration.userData, Service)
       .then((returnedResults) => {
         if (returnedResults.status === false) {
           //
