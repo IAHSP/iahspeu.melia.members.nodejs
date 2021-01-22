@@ -1,4 +1,5 @@
 const multer = require('multer');
+const Service = require( './class.service');
 
 // Functionality for 'register' endpoint
 // ========
@@ -29,7 +30,12 @@ class Registration {
   }
 
   saveUploadedFiles(req, res, filePath) {
-    let fileSaveSuccess = true;
+    //let fileSaveSuccess = true;
+
+    const finalResults = {
+      "status" : false,
+      "payload" : 'initial'
+    }
 
     const upload = multer({dest: filePath});
     const cpUpload = upload.fields(
@@ -51,7 +57,7 @@ class Registration {
     cpUpload(req, res, (err) => {
       const fs = require('fs');
 
-      this.setUserDataForCreation(req.body);
+      //this.setUserDataForCreation(req.body);
 
 
       //console.log(req.files);
@@ -105,10 +111,40 @@ class Registration {
                 }
             });
           }
-        });
+        }); //forEach
 
-      } //cpUpload
-    });
+      this.createNewUser(req.body, Service)
+        .then((returnedResults) => {
+          if (returnedResults.status === false) {
+            //
+          } else {
+            console.log(`newUserID is this: ${returnedResults.payload}`);
+          }
+
+          finalResults['status'] = returnedResults.status;
+          finalResults['payload'] = returnedResults.payload;
+
+
+          // Result is in JSON
+          res.setHeader('Content-Type', 'application/json');
+          //res.status(200).send(JSON.stringify({ "status": greetTxt }));
+          res.status(200).send(JSON.stringify(finalResults));
+          res.end();
+
+          return finalResults;
+        }) //.then
+        .catch((err) => {
+          console.log('Registration.createNewUser has failed. because of: ' + err);
+          finalResults['status'] = false;
+          finalResults['payload'] = err;
+
+          // Result is in JSON
+          res.status(200).send(JSON.stringify(finalResults));
+          res.end();
+        })
+        ; //.catch
+      } //if (typeof req.files !== 'undefined')
+    }); //cpUpload
 
     return true;
   } // saveUploadedFiles
@@ -117,7 +153,7 @@ class Registration {
   // this is to handle the form submission
   async createNewUser(userData, Service){
 
-    console.log('userData: ');
+    console.log('userData from within createNewUser method: ');
     console.log(userData);
 
     // create the user

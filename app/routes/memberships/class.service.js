@@ -101,7 +101,7 @@ class Service {
 
 
     const strPhotoURL = `${otherSecrets.cloudfront_url}/web/images/member-no-photo.jpg`;
-    console.log(`strPhotoURL: ${strPhotoURL}`);
+    //console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still
     //still need to pay for registration
@@ -109,10 +109,10 @@ class Service {
 
     //create the new user
    return await admin.auth().createUser({
-    email: userData.strEmail,
+    email: userData.email,
     emailVerified: false,
-    password: userData.strPassword,
-    displayName: userData.strFirstName + " " + userData.strLastName,
+    password: userData.password,
+    displayName: userData.firstName + " " + userData.lastName,
     photoURL: strPhotoURL,
     disabled: false
   })
@@ -131,21 +131,43 @@ class Service {
         photoURL : strPhotoURL,
 
         // Additional meta.
-        firstName: userData.strFirstName,
-        lastName: userData.strLastName,
-        phone: userData.strContactPhone,
-        city: userData.strContactCity,
-        state: userData.strContactState,
-        zip: userData.strContactZip,
-        countryCustom: userData.strContactCountry,
-        country: userData.location,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone,
+        vatNumber: userData.vatNumber,
+        address1: userData.address1,
+        address2: userData.address2,
+        city: userData.city,
+        // state: userData.strContactState,
+        zip: userData.zip,
+        countryCustom: userData.country,
+        country: userData.country,
         isAdmin: false,
         isDisabled: userRecord.disabled,
         isApproved: false,
-        expiration: strDefaultExpiration,
-        course: userData.arrSelectedCourses,
-        description: "",
+        expiration: userData.expiration,
+        course: userData.course,
+        description: userData.description,
+
         showPhone: false,
+
+
+        businessName: userData.businessName,
+        businessEmail: userData.businessEmail,
+        urlWeb: userData.urlWeb,
+        urlLinkedIn: userData.urlLinkedIn,
+        urlFacebook: userData.urlFacebook,
+        urlInstagram: userData.urlInstagram,
+        urlPinterest: userData.urlPinterest,
+        dob: userData.dob,
+        nationalAssociation: userData.nationalAssociation,
+        checkboxEthicsCode: userData.checkboxEthicsCode,
+        checkboxStatue: userData.checkboxStatue,
+        checkboxTermsConditions: userData.checkboxTermsConditions,
+        checkboxPrivacyPolicy: userData.checkboxPrivacyPolicy,
+        txtHowFoundUs: userData.txtHowFoundUs,
+        txtYearsInBusiness: userData.txtYearsInBusiness,
+        initialSignUp: userData.initialSignUp,
 
         // ASP Info
         isASP: false,

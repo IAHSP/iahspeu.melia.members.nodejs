@@ -123,39 +123,40 @@ membershipsRouter.route('/register')
 
     // If we are here, then the files were successfully saved,
     // so now we can create our user.
-    console.log('about to run createNewUser.  the payload is: ');
-    console.log(Registration.userData);
 
-    Registration.createNewUser(Registration.userData, Service)
-      .then((returnedResults) => {
-        if (returnedResults.status === false) {
-          //
-        } else {
-          console.log(`newUserID is this: ${returnedResults.payload}`);
-        }
+    //console.log('about to run createNewUser.  the payload is: ');
+    //console.log(Registration.userData);
 
-        finalResults['status'] = returnedResults.status;
-        finalResults['payload'] = returnedResults.payload;
+    //Registration.createNewUser(Registration.userData, Service)
+      //.then((returnedResults) => {
+        //if (returnedResults.status === false) {
+          ////
+        //} else {
+          //console.log(`newUserID is this: ${returnedResults.payload}`);
+        //}
+
+        //finalResults['status'] = returnedResults.status;
+        //finalResults['payload'] = returnedResults.payload;
 
 
-        // Result is in JSON
-        res.setHeader('Content-Type', 'application/json');
-        //res.status(200).send(JSON.stringify({ "status": greetTxt }));
-        res.status(200).send(JSON.stringify(finalResults));
-        res.end();
+        //// Result is in JSON
+        //res.setHeader('Content-Type', 'application/json');
+        ////res.status(200).send(JSON.stringify({ "status": greetTxt }));
+        //res.status(200).send(JSON.stringify(finalResults));
+        //res.end();
 
-        return finalResults;
-      })
-      .catch((err) => {
-        console.log('Registration.createNewUser has failed. because of: ' + err);
-        finalResults['status'] = false;
-        finalResults['payload'] = err;
+        //return finalResults;
+      //})
+      //.catch((err) => {
+        //console.log('Registration.createNewUser has failed. because of: ' + err);
+        //finalResults['status'] = false;
+        //finalResults['payload'] = err;
 
-        // Result is in JSON
-        res.status(200).send(JSON.stringify(finalResults));
-        res.end();
-      })
-      ;
+        //// Result is in JSON
+        //res.status(200).send(JSON.stringify(finalResults));
+        //res.end();
+      //})
+      //;
 
   })
 ; // /renew
