@@ -41,6 +41,7 @@ class Service {
       // By setting the option `destination`, you can change the name of the
       // object you are uploading to a bucket.
       destination: fileName,
+      public: true,
       metadata: {
         // Enable long-lived HTTP caching headers
         // Use only if the contents of the file will never change
