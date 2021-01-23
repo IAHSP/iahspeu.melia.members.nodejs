@@ -105,7 +105,7 @@ membershipsRouter.route('/register')
     const milliToken = Date.now().toString();
     const filePath = __dirname + "/../../../uploads/" + milliToken;
 
-    fileSaveSuccess = Registration.saveUploadedFiles(req, res, filePath);
+    fileSaveSuccess = Registration.saveUploadedFiles(req, res, filePath, milliToken);
 
     if (fileSaveSuccess !== true) {
       finalResults = {

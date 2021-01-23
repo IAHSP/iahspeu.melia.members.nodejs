@@ -14,6 +14,7 @@ admin.initializeApp({
   databaseURL: otherSecrets.database_url
 });
 
+
 // ================================================================
 /**
  * The Service class is used for all the external communications,
@@ -24,10 +25,29 @@ class Service {
   constructor() {
     this.db = admin.firestore();
     this.currentError = "gabe";
+    this.bucket = admin.storage().bucket("iahsp-europe.appspot.com" );
   }
 
   getCurrentError() {
     return this.currentError;
+  }
+
+  async uploadFile(fileNameWithPath, fileName) {
+    // Uploads a local file to the bucket
+    console.log(`uploadFile: Will now attempt to send ${fileNameWithPath} to fire storage bucket.`);
+    return await this.bucket.upload(fileNameWithPath, {
+      // Support for HTTP requests made with `Accept-Encoding: gzip`
+      gzip: true,
+      // By setting the option `destination`, you can change the name of the
+      // object you are uploading to a bucket.
+      destination: fileName,
+      metadata: {
+        // Enable long-lived HTTP caching headers
+        // Use only if the contents of the file will never change
+        // (If the contents will change, use cacheControl: 'no-cache')
+        cacheControl: 'public, max-age=31536000',
+      },
+    });
   }
 
   // ================================================================
@@ -131,6 +151,7 @@ class Service {
         photoURL : strPhotoURL,
 
         // Additional meta.
+        milliToken: userData.milliToken,
         firstName: userData.firstName,
         lastName: userData.lastName,
         phone: userData.phone,

@@ -29,7 +29,7 @@ class Registration {
     return this.userData;
   }
 
-  saveUploadedFiles(req, res, filePath) {
+  saveUploadedFiles(req, res, filePath, milliToken) {
     //let fileSaveSuccess = true;
 
     const finalResults = {
@@ -92,6 +92,7 @@ class Registration {
                   saveUploadFinalResults['payload'] = myCurrentError;
                 }
               });
+              Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
             });
           } else {
             //all other uploads
@@ -110,38 +111,48 @@ class Registration {
                   saveUploadFinalResults['payload'] = myCurrentError;
                 }
             });
+            Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+              .catch((err) => {
+                console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
+              })
+            ;
           }
         }); //forEach
 
-      this.createNewUser(req.body, Service)
-        .then((returnedResults) => {
-          if (returnedResults.status === false) {
-            //
-          } else {
-            console.log(`newUserID is this: ${returnedResults.payload}`);
-          }
+        // lets first inject the fire storage ID for this user into the user data
+        // so it gets stored with this user
+        req.body.milliToken = milliToken;
 
-          finalResults['status'] = returnedResults.status;
-          finalResults['payload'] = returnedResults.payload;
+        //req.body.milliToken = milliToken;
+        this.createNewUser(req.body, Service)
+          .then((returnedResults) => {
+            if (returnedResults.status === false) {
+              //
+            } else {
+              console.log(`newUserID is this: ${returnedResults.payload}`);
+            }
+
+            finalResults['status'] = returnedResults.status;
+            finalResults['payload'] = returnedResults.payload;
 
 
-          // Result is in JSON
-          res.setHeader('Content-Type', 'application/json');
-          //res.status(200).send(JSON.stringify({ "status": greetTxt }));
-          res.status(200).send(JSON.stringify(finalResults));
-          res.end();
+            // Result is in JSON
+            res.setHeader('Content-Type', 'application/json');
+            //res.status(200).send(JSON.stringify({ "status": greetTxt }));
+            res.status(200).send(JSON.stringify(finalResults));
+            res.end();
 
-          return finalResults;
-        }) //.then
-        .catch((err) => {
-          console.log('Registration.createNewUser has failed. because of: ' + err);
-          finalResults['status'] = false;
-          finalResults['payload'] = err;
+            return finalResults;
+          }) //.then
+          .catch((err) => {
+            console.log('Registration.createNewUser has failed. because of: ' + err);
+            finalResults['status'] = false;
+            finalResults['payload'] = err;
 
-          // Result is in JSON
-          res.status(200).send(JSON.stringify(finalResults));
-          res.end();
-        })
+            // Result is in JSON
+            res.status(200).send(JSON.stringify(finalResults));
+            res.end();
+          })
         ; //.catch
       } //if (typeof req.files !== 'undefined')
     }); //cpUpload
