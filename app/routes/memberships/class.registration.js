@@ -57,6 +57,8 @@ class Registration {
     cpUpload(req, res, (err) => {
       const fs = require('fs');
 
+      let tmpFilePath = '';
+
       //this.setUserDataForCreation(req.body);
 
 
@@ -81,6 +83,7 @@ class Registration {
               const originalFileExtension = originalFilename.split('.').pop();
               const currentFilename = v.filename;
               const currentPath = v.destination;
+              tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
               const newFilename = `photosWorkExamples-${k+1}.${originalFileExtension}`;
               //console.log(`newFilename: ${newFilename}`);
 
@@ -93,6 +96,10 @@ class Registration {
                 }
               });
               Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+                .catch((err) => {
+                  console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
+                })
+              ;
             });
           } else {
             //all other uploads
@@ -100,6 +107,7 @@ class Registration {
             const originalFileExtension = originalFilename.split('.').pop();
             const currentFilename = req.files[key][0].filename;
             const currentPath = req.files[key][0].destination;
+            tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
             const newFilename = `${key}.${originalFileExtension}`;
             //console.log(`newFilename: ${newFilename}`);
 
@@ -118,6 +126,18 @@ class Registration {
             ;
           }
         }); //forEach
+
+        //foreach is done, so now we can delete the tmp storage directory.
+        // recursive, ensures it can do it even if it's not empty
+        console.log(`file foreach is done, so ${tmpFilePath} will now be deleted.`);
+        //fs.rmdir(tmpFilePath, { recursive: true });
+        fs.rmdir(tmpFilePath, { recursive: true }, (err) => {
+          if (err) {
+            console.log(`Could not delete ${tmpFilePath} because of error: ${err}`);
+          } else {
+            console.log(`${tmpFilePath} has been successfully deleted.`);
+          }
+        });
 
         // lets first inject the fire storage ID for this user into the user data
         // so it gets stored with this user
