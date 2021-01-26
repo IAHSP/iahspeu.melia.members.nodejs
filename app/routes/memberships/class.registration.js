@@ -106,6 +106,10 @@ class Registration {
             this.finalResults['status'] = false;
             this.finalResults['payload'] = err;
 
+            //we need to delete the files here, because the code block will end here.
+            //so it wont reach the deletion of files below.
+            this.deleteFileDirectory(filePath);
+
             // Result is in JSON
             res.status(200).send(JSON.stringify(this.finalResults));
             res.end();
@@ -177,14 +181,7 @@ class Registration {
         // but either way, its now time to delete the tmp file directory,
         // because the uploaded files still exist in it.
         // recursive, ensures it can do it even if it's not empty
-        console.log(`${filePath} will now be deleted.`);
-        fs.rmdir(filePath, { recursive: true }, (err) => {
-          if (err) {
-            console.log(`Could not delete ${filePath} because of error: ${err}`);
-          } else {
-            console.log(`${filePath} has been successfully deleted.`);
-          }
-        });
+        this.deleteFileDirectory(filePath);
 
       } //if (typeof req.files !== 'undefined')
 
@@ -205,6 +202,21 @@ class Registration {
 
     return this.finalResults;
   } // processSubmission
+
+  // this is to delete the temporary dir that stores the user's
+  // files before they have been uploaded to firebase storage
+  deleteFileDirectory(filePath) {
+    const fs = require('fs');
+
+    console.log(`${filePath} will now be deleted.`);
+    fs.rmdir(filePath, { recursive: true }, (err) => {
+      if (err) {
+        console.log(`Could not delete ${filePath} because of error: ${err}`);
+      } else {
+        console.log(`${filePath} has been successfully deleted.`);
+      }
+    });
+  }
 
 
   // this is to handle the form submission
