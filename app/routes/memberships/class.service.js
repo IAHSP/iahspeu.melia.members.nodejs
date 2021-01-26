@@ -128,95 +128,96 @@ class Service {
     //still need to pay for registration
     const strDefaultExpiration = "0000-00-00";
 
+    console.log(`checking if pw is being sent successfully: ${userData.password}`);
     //create the new user
-   return await admin.auth().createUser({
-    email: userData.email,
-    emailVerified: false,
-    password: userData.password,
-    displayName: userData.firstName + " " + userData.lastName,
-    photoURL: strPhotoURL,
-    disabled: false
-  })
-  .then(async (userRecord) => {
-    //console.log(`userRecord is this: ${userRecord}`);
-    if (userRecord) {
-      //user creation wroked
-      userID = userRecord.uid;
-      console.log("Successfully created new user: " + userID);
+    return await admin.auth().createUser({
+      email: userData.email,
+      emailVerified: false,
+      password: userData.password,
+      displayName: userData.firstName + " " + userData.lastName,
+      photoURL: strPhotoURL,
+      disabled: false
+    })
+      .then(async (userRecord) => {
+        //console.log(`userRecord is this: ${userRecord}`);
+        if (userRecord) {
+          //user creation wroked
+          userID = userRecord.uid;
+          console.log("Successfully created new user: " + userID);
 
 
-      const usersRef = this.db.collection('users');
-      setDoc = await usersRef.doc(userRecord.uid).set({
-        displayName: userRecord.displayName,
-        email: userRecord.email,
-        photoURL : strPhotoURL,
+          const usersRef = this.db.collection('users');
+          setDoc = await usersRef.doc(userRecord.uid).set({
+            displayName: userRecord.displayName,
+            email: userRecord.email,
+            photoURL : strPhotoURL,
 
-        // Additional meta.
-        milliToken: userData.milliToken,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        phone: userData.phone,
-        vatNumber: userData.vatNumber,
-        address1: userData.address1,
-        address2: userData.address2,
-        city: userData.city,
-        // state: userData.strContactState,
-        zip: userData.zip,
-        countryCustom: userData.country,
-        country: userData.country,
-        isAdmin: false,
-        isDisabled: userRecord.disabled,
-        isApproved: false,
-        expiration: userData.expiration,
-        course: userData.course,
-        description: userData.description,
+            // Additional meta.
+            milliToken: userData.milliToken,
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            phone: userData.phone,
+            vatNumber: userData.vatNumber,
+            address1: userData.address1,
+            address2: userData.address2,
+            city: userData.city,
+            // state: userData.strContactState,
+            zip: userData.zip,
+            countryCustom: userData.country,
+            country: userData.country,
+            isAdmin: false,
+            isDisabled: userRecord.disabled,
+            isApproved: false,
+            expiration: userData.expiration,
+            course: userData.course,
+            description: userData.description,
 
-        showPhone: false,
+            showPhone: false,
 
 
-        businessName: userData.businessName,
-        businessEmail: userData.businessEmail,
-        urlWeb: userData.urlWeb,
-        urlLinkedIn: userData.urlLinkedIn,
-        urlFacebook: userData.urlFacebook,
-        urlInstagram: userData.urlInstagram,
-        urlPinterest: userData.urlPinterest,
-        dob: userData.dob,
-        nationalAssociation: userData.nationalAssociation,
-        checkboxEthicsCode: userData.checkboxEthicsCode,
-        checkboxStatue: userData.checkboxStatue,
-        checkboxTermsConditions: userData.checkboxTermsConditions,
-        checkboxPrivacyPolicy: userData.checkboxPrivacyPolicy,
-        txtHowFoundUs: userData.txtHowFoundUs,
-        txtYearsInBusiness: userData.txtYearsInBusiness,
-        initialSignUp: userData.initialSignUp,
+            businessName: userData.businessName,
+            businessEmail: userData.businessEmail,
+            urlWeb: userData.urlWeb,
+            urlLinkedIn: userData.urlLinkedIn,
+            urlFacebook: userData.urlFacebook,
+            urlInstagram: userData.urlInstagram,
+            urlPinterest: userData.urlPinterest,
+            dob: userData.dob,
+            nationalAssociation: userData.nationalAssociation,
+            checkboxEthicsCode: userData.checkboxEthicsCode,
+            checkboxStatue: userData.checkboxStatue,
+            checkboxTermsConditions: userData.checkboxTermsConditions,
+            checkboxPrivacyPolicy: userData.checkboxPrivacyPolicy,
+            txtHowFoundUs: userData.txtHowFoundUs,
+            txtYearsInBusiness: userData.txtYearsInBusiness,
+            initialSignUp: userData.initialSignUp,
 
-        // ASP Info
-        isASP: false,
-        aspid: null
-      });
+            // ASP Info
+            isASP: false,
+            aspid: null
+          });
 
-      isSuccess = true;
+          isSuccess = true;
 
-      finalResults['status'] = isSuccess;
-      finalResults['payload'] = userID;
+          finalResults['status'] = isSuccess;
+          finalResults['payload'] = userID;
 
-      return finalResults;
-    } else {
-      //user creation gracefully failed
-      //console.log(`the .then was executed even though the user was not created...`);
-      finalResults['status'] = false;
-      finalResults['payload'] = null;
-      return finalResults;
-    }
-  })
-  .catch((err) => {
-    this.currentError = `Error creating User, because: ${err}`;
-    console.log(this.currentError);
-    finalResults['status'] = false;
-    finalResults['payload'] = this.currentError;
-    return finalResults;
-  }); // admin.auth().createUser()
+          return finalResults;
+        } else {
+          //user creation gracefully failed
+          //console.log(`the .then was executed even though the user was not created...`);
+          finalResults['status'] = false;
+          finalResults['payload'] = null;
+          return finalResults;
+        }
+      })
+      .catch((err) => {
+        this.currentError = `Error creating User, because: ${err}`;
+        console.log(this.currentError);
+        finalResults['status'] = false;
+        finalResults['payload'] = this.currentError;
+        return finalResults;
+      }); // admin.auth().createUser()
 
   //return {
     //"status" : true,
