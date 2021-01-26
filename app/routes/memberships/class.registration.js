@@ -11,8 +11,8 @@ class Registration {
     this.currentError = "Default Error Text for Registration Class";
 
 
-    this.saveUploadFinalResults = {
-      "status" : true,
+    this.finalResults = {
+      "status" : false,
       "payload" : 'initial'
     }
 
@@ -29,12 +29,12 @@ class Registration {
     return this.userData;
   }
 
-  saveUploadedFiles(req, res, filePath, milliToken) {
+  async processSubmission(req, res, filePath, milliToken) {
     //let fileSaveSuccess = true;
 
-    const finalResults = {
+    this.finalResults = {
       "status" : false,
-      "payload" : 'initial'
+      "payload" : 'initial2'
     }
 
     const upload = multer({dest: filePath});
@@ -54,131 +54,157 @@ class Registration {
 
     console.log(`current registration files being saved to filePath: ${filePath}`);
 
-    cpUpload(req, res, (err) => {
+    cpUpload(req, res, async (err) => {
       const fs = require('fs');
-
-      let tmpFilePath = '';
-
-      //this.setUserDataForCreation(req.body);
-
 
       //console.log(req.files);
       //console.log(req.body);
       if (typeof err !== 'undefined') {
         myCurrentError = `Could not save files because of error: ${err}`;
         console.log(myCurrentError);
-        saveUploadFinalResults['status'] = false;
-        saveUploadFinalResults['payload'] = myCurrentError;
+        this.finalResults['status'] = false;
+        this.finalResults['payload'] = myCurrentError;
+
+        res.status(200).send(JSON.stringify(this.finalResults));
+        res.end();
+
+        return this.finalResults;
       }
 
       if (typeof req.files !== 'undefined') {
-        const fileKeys = Object.keys(req.files);
-        fileKeys.forEach((key) => {
-          if (key === 'photosWorkExamples[]') {
-            //handle the multi upload
-            req.files[key].forEach((v, k) => {
-              //console.log(`k: ${k} , v: ${v}`);
-              //console.log(v);
-              const originalFilename = v.originalname;
+
+        // lets first inject the fire storage ID for this user into the user data
+        // so it gets stored with this user
+        req.body.milliToken = milliToken;
+
+        let newUserID = false;
+
+        //req.body.milliToken = milliToken;
+        await this.createNewUser(req.body, Service)
+          .then((returnedResults) => {
+            if (returnedResults.status === false) {
+              newUserID = false;
+            } else {
+              newUserID = returnedResults.payload;
+              console.log(`newUserID is this: ${newUserID}`);
+            }
+
+            this.finalResults['status'] = returnedResults.status;
+            this.finalResults['payload'] = returnedResults.payload;
+
+
+            // Result is in JSON
+            //res.setHeader('Content-Type', 'application/json');
+            //res.status(200).send(JSON.stringify({ "status": greetTxt }));
+            //res.status(200).send(JSON.stringify(this.finalResults));
+            //res.end();
+
+            return this.finalResults;
+          }) //.then
+          .catch((err) => {
+            console.log('Registration.createNewUser has failed. because of: ' + err);
+            this.finalResults['status'] = false;
+            this.finalResults['payload'] = err;
+
+            // Result is in JSON
+            res.status(200).send(JSON.stringify(this.finalResults));
+            res.end();
+          })
+        ; //.catch
+
+        //assuming user creation was successful, we can now process the files
+        if (newUserID !== false) {
+          console.log(`Found newUserID: ${newUserID}, so now file foreach can begin.`);
+          const fileKeys = Object.keys(req.files);
+          fileKeys.forEach((key) => {
+            if (key === 'photosWorkExamples[]') {
+              //handle the multi upload
+              req.files[key].forEach((v, k) => {
+                //console.log(`k: ${k} , v: ${v}`);
+                //console.log(v);
+                const originalFilename = v.originalname;
+                const originalFileExtension = originalFilename.split('.').pop();
+                const currentFilename = v.filename;
+                const currentPath = v.destination;
+                //tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
+                const newFilename = `photosWorkExamples-${k+1}.${originalFileExtension}`;
+                //console.log(`newFilename: ${newFilename}`);
+
+                fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
+                  if ( err ) {
+                    myCurrentError = 'Error trying to rename file: ' + err;
+                    console.log(myCurrentError);
+                    this.finalResults['status'] = false;
+                    this.finalResults['payload'] = myCurrentError;
+                  }
+                });
+                Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+                  .catch((err) => {
+                    console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
+                  })
+                ;
+              });
+            } else {
+              //all other uploads
+              const originalFilename = req.files[key][0].originalname;
               const originalFileExtension = originalFilename.split('.').pop();
-              const currentFilename = v.filename;
-              const currentPath = v.destination;
-              tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
-              const newFilename = `photosWorkExamples-${k+1}.${originalFileExtension}`;
+              const currentFilename = req.files[key][0].filename;
+              const currentPath = req.files[key][0].destination;
+              //tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
+              const newFilename = `${key}.${originalFileExtension}`;
               //console.log(`newFilename: ${newFilename}`);
 
               fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
-                if ( err ) {
-                  myCurrentError = 'Error trying to rename file: ' + err;
-                  console.log(myCurrentError);
-                  saveUploadFinalResults['status'] = false;
-                  saveUploadFinalResults['payload'] = myCurrentError;
-                }
+                  if ( err ) {
+                    myCurrentError = 'Error trying to rename file: ' + err;
+                    console.log(myCurrentError);
+                    this.finalResults['status'] = false;
+                    this.finalResults['payload'] = myCurrentError;
+                  }
               });
               Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
                 .catch((err) => {
                   console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
                 })
               ;
-            });
-          } else {
-            //all other uploads
-            const originalFilename = req.files[key][0].originalname;
-            const originalFileExtension = originalFilename.split('.').pop();
-            const currentFilename = req.files[key][0].filename;
-            const currentPath = req.files[key][0].destination;
-            tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
-            const newFilename = `${key}.${originalFileExtension}`;
-            //console.log(`newFilename: ${newFilename}`);
+            }
+          }); //forEach
 
-            fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
-                if ( err ) {
-                  myCurrentError = 'Error trying to rename file: ' + err;
-                  console.log(myCurrentError);
-                  saveUploadFinalResults['status'] = false;
-                  saveUploadFinalResults['payload'] = myCurrentError;
-                }
-            });
-            Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
-              .catch((err) => {
-                console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
-              })
-            ;
-          }
-        }); //forEach
+        } // if newUserID
 
-        //foreach is done, so now we can delete the tmp storage directory.
+        // At this part of the code, either the file foreach is done,
+        // or user creation failed, and the file foreach didn't occur,
+        // but either way, its now time to delete the tmp file directory,
+        // because the uploaded files still exist in it.
         // recursive, ensures it can do it even if it's not empty
-        console.log(`file foreach is done, so ${tmpFilePath} will now be deleted.`);
-        //fs.rmdir(tmpFilePath, { recursive: true });
-        fs.rmdir(tmpFilePath, { recursive: true }, (err) => {
+        console.log(`${filePath} will now be deleted.`);
+        fs.rmdir(filePath, { recursive: true }, (err) => {
           if (err) {
-            console.log(`Could not delete ${tmpFilePath} because of error: ${err}`);
+            console.log(`Could not delete ${filePath} because of error: ${err}`);
           } else {
-            console.log(`${tmpFilePath} has been successfully deleted.`);
+            console.log(`${filePath} has been successfully deleted.`);
           }
         });
 
-        // lets first inject the fire storage ID for this user into the user data
-        // so it gets stored with this user
-        req.body.milliToken = milliToken;
-
-        //req.body.milliToken = milliToken;
-        this.createNewUser(req.body, Service)
-          .then((returnedResults) => {
-            if (returnedResults.status === false) {
-              //
-            } else {
-              console.log(`newUserID is this: ${returnedResults.payload}`);
-            }
-
-            finalResults['status'] = returnedResults.status;
-            finalResults['payload'] = returnedResults.payload;
-
-
-            // Result is in JSON
-            res.setHeader('Content-Type', 'application/json');
-            //res.status(200).send(JSON.stringify({ "status": greetTxt }));
-            res.status(200).send(JSON.stringify(finalResults));
-            res.end();
-
-            return finalResults;
-          }) //.then
-          .catch((err) => {
-            console.log('Registration.createNewUser has failed. because of: ' + err);
-            finalResults['status'] = false;
-            finalResults['payload'] = err;
-
-            // Result is in JSON
-            res.status(200).send(JSON.stringify(finalResults));
-            res.end();
-          })
-        ; //.catch
       } //if (typeof req.files !== 'undefined')
+
+      console.log(`cpUpload has concluded, and the following is the global this.finalResults.`);
+      console.log(this.finalResults);
+
+      res.status(200).send(JSON.stringify(this.finalResults));
+      res.end();
     }); //cpUpload
 
-    return true;
-  } // saveUploadedFiles
+    //console.log(`cpUpload has concluded, and the following is the global this.finalResults.`);
+    //console.log(this.finalResults);
+
+    //sending json and ending here doesn't work, i had to do it from within the cpUpload function, otherwise
+    //i can not get useful data into this.finalResults.
+    //res.status(200).send(JSON.stringify(this.finalResults));
+    //res.end();
+
+    return this.finalResults;
+  } // processSubmission
 
 
   // this is to handle the form submission
