@@ -128,7 +128,6 @@ class Service {
     //still need to pay for registration
     const strDefaultExpiration = "0000-00-00";
 
-    console.log(`checking if pw is being sent successfully: ${userData.password}`);
     //create the new user
     return await admin.auth().createUser({
       email: userData.email,
