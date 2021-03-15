@@ -61,6 +61,7 @@ class Service {
   // ================================================================
   async setUserApproved(theUID){
     let status = null;
+    //console.log(`UID to be updated is: ${theUID}`);
     const usersRef = this.db.collection('users');
     try {
       //NOTE!  using .set() will override everything

@@ -34,6 +34,7 @@ const corsOptions = {
 
 // parse application/json
 const jsonBodyParser = bodyParser.json();
+membershipsRouter.use(jsonBodyParser);
 
 
 //Lets load in all our classes
@@ -199,7 +200,7 @@ membershipsRouter.route('/set_user_approved')
     }
 
     const userID = req.body.uid;
-
+    console.log(`UID to be approved is: ${userID}`);
     // Determine function successes.
     try {
       success = await approveUser.setUserApproved(userID);
