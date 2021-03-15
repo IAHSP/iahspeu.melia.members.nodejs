@@ -24,6 +24,7 @@ const corsOptions = {
     //firebase serve --only functions.  Because then, origin is skipped
     //https://stackoverflow.com/questions/42589882/nodejs-cors-middleware-origin-undefined
     if (corsWhiteList.indexOf(origin) !== -1 || !origin) {
+      console.log(`${origin} passed CORS`);
       return callback(null, true);
     } else {
       console.log(`${origin} is not allowed by CORS`);
@@ -34,7 +35,7 @@ const corsOptions = {
 
 // parse application/json
 const jsonBodyParser = bodyParser.json();
-membershipsRouter.use(jsonBodyParser);
+//membershipsRouter.use(jsonBodyParser);
 
 
 //Lets load in all our classes
@@ -192,7 +193,7 @@ membershipsRouter.route('/set_user_approved')
     res.setHeader('Content-Type', 'application/json');
     next();
   })
-  .post(async (req, res, next ) => {
+  .post(jsonBodyParser, async (req, res, next ) => {
 
     let finalResults = {
       "status" : false,
