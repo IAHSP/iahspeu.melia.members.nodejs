@@ -144,7 +144,7 @@ membershipsRouter.route('/register_charge')
     res.setHeader('Content-Type', 'application/json');
     next();
   })
-  .post(async (req, res, next ) => {
+  .post(jsonBodyParser, async (req, res, next ) => {
 
     let finalResults = {
       "status" : false,
