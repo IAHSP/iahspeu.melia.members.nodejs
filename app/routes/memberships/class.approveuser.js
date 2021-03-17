@@ -11,6 +11,9 @@ class ApproveUser {
   async setUserApproved(theUID){
     return await this.Service.setUserApproved(theUID);
   }
+  async setUserDeclined(theUID){
+    return await this.Service.setUserDeclined(theUID);
+  }
 }
 
 module.exports = ApproveUser;

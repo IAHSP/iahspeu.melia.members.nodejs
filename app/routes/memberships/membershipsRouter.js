@@ -220,4 +220,36 @@ membershipsRouter.route('/set_user_approved')
   })
 ; // /set_user_approved
 
+membershipsRouter.route('/set_user_declined')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(jsonBodyParser, async (req, res, next ) => {
+
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+
+    const userID = req.body.uid;
+    console.log(`UID to be approved is: ${userID}`);
+    // Determine function successes.
+    try {
+      success = await approveUser.setUserDeclined(userID);
+      finalResults['status'] = true;
+      finalResults['payload'] = success;
+    } catch(err) {
+      console.log('approveUser.setUserDeclined failed because of error: ' + err);
+      finalResults['status'] = err;
+    }
+
+
+    // Result is in JSON
+    res.status(200).send(JSON.stringify(finalResults));
+    res.end();
+
+  })
+; // /set_user_declined
+
 module.exports = membershipsRouter;

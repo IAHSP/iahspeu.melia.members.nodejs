@@ -79,6 +79,12 @@ class Registration {
 
         let newUserID = false;
 
+        // lets also inject the number of files to loop over for work examples.
+        // this will be used on the approval page, showing the person's work,
+        // and maybe even on the member page, if that gets implemented.
+        const filesCount = Object.keys(req.files['photosWorkExamples[]']).length;
+        req.body.photosWorkExampleCount = filesCount;
+
         //req.body.milliToken = milliToken;
         await this.createNewUser(req.body, Service)
           .then((returnedResults) => {
