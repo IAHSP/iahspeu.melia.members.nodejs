@@ -7,7 +7,7 @@ var otherSecrets  = require("../../utilities/data/other-secrets.json");
 const admin = require("firebase-admin");
 const stripe = require('stripe')(stripeKeys.secret_key);
 
-
+const Mailer = require('../../utilities/class.sendmail');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -63,6 +63,9 @@ class Service {
     let status = null;
     //console.log(`UID to be updated is: ${theUID}`);
     const usersRef = this.db.collection('users');
+    const currentData = await usersRef.doc(theUID).get();
+    const currentUserEmail = currentData.data().email;
+
     try {
       //NOTE!  using .set() will override everything
       //       using .update() will update only the fields provided,
@@ -73,6 +76,19 @@ class Service {
     } catch (err) {
       status = false;
       console.log(`Unable to update document: '${theUID}' because of error:  ${err}`);
+    }
+
+    if (status !== false) {
+      // approval worked, so lets send email notification now...
+      const strEmailSubject = `Your application to IAHSP Europe has been approved!`;
+      const strEmailMessage = `
+        Congratulations! Your application to IAHSP Europe has been approved!<br/>
+        <br/>
+        You can now access the site here:<br/>
+        [LINK TO SITE WILL BE HERE SOON]
+
+      `;
+      Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
     }
 
     return status;
@@ -86,12 +102,13 @@ class Service {
     * @return          true on successful update of db, false on error.
     */
   // ================================================================
-  async setUserDeclined(theUID){
+  async setUserDeclined(theUID, theReason, theNotes){
     const usersRef = this.db.collection('users');
 
     // lets first retrieve the users doc so we can get the milliToken from it.
     const currentData = await usersRef.doc(theUID).get();
     const currentToken = currentData.data().milliToken;
+    const currentUserEmail = currentData.data().email;
 
     let status = null;
 
@@ -123,6 +140,42 @@ class Service {
       status = false;
       console.log(`Unable to deleteUser: '${theUID}' because of error:  ${err}`);
     }
+
+    console.log(`theReason: ${theReason}, theNotes: ${theNotes}`);
+    let reasonTxt = "";
+    switch(theReason) {
+      case "reason001":
+        reasonTxt = 'Sorry, your application to IAHSP Europe has been declined, due to reason 001.';
+        break;
+      case "reason002":
+        reasonTxt = 'Sorry, your application to IAHSP Europe has been declined, due to reason 002.';
+        break;
+      case "reason003":
+        reasonTxt = 'Sorry, your application to IAHSP Europe has been declined, due to reason 003.';
+        break;
+      case "reason004":
+        reasonTxt = 'Sorry, your application to IAHSP Europe has been declined, due to reason 004.';
+        break;
+      default:
+        reasonTxt = 'Sorry, your application to IAHSP Europe has been declined.';
+    }
+
+    let notesTxt = theNotes;
+    // using regex so that it will do a global replace, instead of just the 1st one...
+    notesTxt = notesTxt.replace(/(\r\n|\n|\r)/g,"<br />");
+
+    if (status !== false) {
+      // all the things worked, so we can send an email to the user
+      // that they got declined.
+      const strEmailSubject = `Your application to IAHSP Europe has been declined.`;
+      const strEmailMessage = `
+        ${reasonTxt}<br/>
+        <br/>
+        ${notesTxt}
+      `;
+      Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+    }
+
 
     return status;
   } // setUserDeclined()

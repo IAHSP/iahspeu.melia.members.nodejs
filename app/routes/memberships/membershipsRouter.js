@@ -233,10 +233,12 @@ membershipsRouter.route('/set_user_declined')
     }
 
     const userID = req.body.uid;
-    console.log(`UID to be approved is: ${userID}`);
+    const theReason = req.body.reason;
+    const theNotes = req.body.notes;
+    console.log(`UID to be declined is: ${userID}, reason: ${theReason}, notes: ${theNotes}`);
     // Determine function successes.
     try {
-      success = await approveUser.setUserDeclined(userID);
+      success = await approveUser.setUserDeclined(userID, theReason, theNotes);
       finalResults['status'] = true;
       finalResults['payload'] = success;
     } catch(err) {
