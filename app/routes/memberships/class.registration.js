@@ -44,7 +44,13 @@ class Registration {
           name: 'photoProfilePic', maxCount: 1
         },
         {
-          name: 'fileCertificate', maxCount: 1
+          name: 'fileEuAffilAssocCert', maxCount: 1
+        },
+        {
+          name: 'fileEuHomeStageCourseCert', maxCount: 1
+        },
+        {
+          name: 'fileProHomeStagerYetCert', maxCount: 1
         },
         {
           name: 'photosWorkExamples[]', maxCount: 10

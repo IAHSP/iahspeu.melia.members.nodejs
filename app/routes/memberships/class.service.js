@@ -272,7 +272,7 @@ class Service {
             isDisabled: userRecord.disabled,
             isApproved: false,
             expiration: userData.expiration,
-            course: userData.course,
+            euHomeStagingCourse: userData.euHomeStagingCourse,
             description: userData.description,
 
             showPhone: false,
@@ -286,7 +286,7 @@ class Service {
             urlInstagram: userData.urlInstagram,
             urlPinterest: userData.urlPinterest,
             dob: userData.dob,
-            nationalAssociation: userData.nationalAssociation,
+            euAffilicatedAssociation: userData.euAffilicatedAssociation,
             checkboxEthicsCode: userData.checkboxEthicsCode,
             checkboxStatue: userData.checkboxStatue,
             checkboxTermsConditions: userData.checkboxTermsConditions,
