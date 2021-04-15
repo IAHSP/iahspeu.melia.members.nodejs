@@ -413,6 +413,48 @@ class Service {
     return finalResults;
   } // chargeCreditCard()
 
+  // ================================================================
+    /**
+    * Send agent an email from contact modal form
+    *
+    * @param   allTheData JSON package being sent from angular
+    * @return          true on successful update of db, false on error.
+    */
+  // ================================================================
+  async contactFormEmailSend(data){
+    let status = null;
+
+    const currentUserEmail = data.iahspEmail;
+
+    console.log(`Sending email to ${currentUserEmail}`);
+
+
+
+    const strEmailSubject = `IAHSP Directory | ${data.subject}`;
+    const strEmailMessage = `
+      You have recieved a message sent from the IAHSP Europe Member Directory contact form.<br/>
+      <br/>
+      Full Name: ${data.fullName}<br/>
+      Email (From): ${data.email}<br/>
+      Subject: ${data.subject}<br/>
+      <br/>
+      <br/>
+      <br/>
+      Message:<br/>
+      <pre>${data.message}</pre>
+
+    `;
+    try {
+      await Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      status = true;
+    } catch (err) {
+      console.log(`Error trying to send email: ${err}`);
+      status = false;
+    }
+
+    return status;
+  } // setUserApproved()
+
 } // Service()
 
 module.exports = new Service;

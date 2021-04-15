@@ -11,6 +11,7 @@ const Service = require( './class.service');
 const Registration = require('./class.registration');
 const UnapprovedUsers = require('./class.unapprovedusers');
 const ApproveUser = require('./class.approveuser');
+const Contact = require('./class.contact');
 
 const corsWhiteList = [
   "https://iahsp.com",
@@ -238,6 +239,39 @@ membershipsRouter.route('/set_user_declined')
       finalResults['payload'] = success;
     } catch(err) {
       console.log('approveUser.setUserDeclined failed because of error: ' + err);
+      finalResults['status'] = err;
+    }
+
+
+    // Result is in JSON
+    res.status(200).send(JSON.stringify(finalResults));
+    res.end();
+
+  })
+; // /set_user_declined
+
+membershipsRouter.route('/contact_modal')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(jsonBodyParser, async (req, res, next ) => {
+
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+
+    //TODO: Verify Google ReCaptcha String before continuing
+
+    // Determine function successes.
+    try {
+      console.log(req.body);
+      success = await Contact.sendAgentEmail(req.body);
+      finalResults['status'] = true;
+      finalResults['payload'] = success;
+    } catch(err) {
+      console.log('Contact.contactFormEmailSend failed because of error: ' + err);
       finalResults['status'] = err;
     }
 
