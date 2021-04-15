@@ -224,7 +224,7 @@ class Service {
     };
 
 
-    const strPhotoURL = `${otherSecrets.cloudfront_url}/web/images/member-no-photo.jpg`;
+    const strPhotoURL = `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
     //console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still

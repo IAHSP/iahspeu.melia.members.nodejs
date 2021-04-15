@@ -109,30 +109,25 @@ membershipsRouter.route('/register')
 
     fileSaveSuccess = await Registration.processSubmission(req, res, filePath, milliToken);
 
-    //if (fileSaveSuccess.status !== true) {
-      //finalResults = {
-        //"status" : false,
-        //"payload" : fileSaveSuccess.payload
-      //}
+  })
+; // /register
 
-      ////stop execution early and return this error
-      ////res.setHeader('Content-Type', 'application/json');
-      //res.status(200).send(JSON.stringify(finalResults));
-      //res.end();
-      //console.log('failed on Registration.processSubmission');
-      //console.log(fileSaveSuccess.payload);
-    //} else {
-      //finalResults = {
-        //"status" : true,
-        //"payload" : fileSaveSuccess
-      //}
-      //console.log('results to be returned as json:');
-      //console.log(finalResults);
-      ////res.setHeader('Content-Type', 'application/json');
-      //res.status(200).send(JSON.stringify(finalResults));
-      //res.end();
-    //}
+membershipsRouter.route('/update_user_photo')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(async (req, res, next ) => {
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+    // this is only a temp token for upload file storage purposes,
+    // but the user's real milliToken has been passed in via req.body
+    const tmp_milliToken = Date.now().toString();
+    const filePath = __dirname + "/../../../uploads/" + tmp_milliToken;
 
+    fileSaveSuccess = await Registration.changeUserPhoto(req, res, filePath);
 
   })
 ; // /register
