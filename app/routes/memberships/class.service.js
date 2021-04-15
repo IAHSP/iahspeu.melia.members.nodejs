@@ -224,7 +224,7 @@ class Service {
     };
 
 
-    const strPhotoURL = `${otherSecrets.cloudfront_url}/web/images/member-no-photo.jpg`;
+    const strPhotoURL = `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
     //console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still
@@ -272,7 +272,7 @@ class Service {
             isDisabled: userRecord.disabled,
             isApproved: false,
             expiration: userData.expiration,
-            course: userData.course,
+            euHomeStagingCourse: userData.euHomeStagingCourse,
             description: userData.description,
 
             showPhone: false,
@@ -286,7 +286,7 @@ class Service {
             urlInstagram: userData.urlInstagram,
             urlPinterest: userData.urlPinterest,
             dob: userData.dob,
-            nationalAssociation: userData.nationalAssociation,
+            euAffilicatedAssociation: userData.euAffilicatedAssociation,
             checkboxEthicsCode: userData.checkboxEthicsCode,
             checkboxStatue: userData.checkboxStatue,
             checkboxTermsConditions: userData.checkboxTermsConditions,
@@ -412,6 +412,48 @@ class Service {
 
     return finalResults;
   } // chargeCreditCard()
+
+  // ================================================================
+    /**
+    * Send agent an email from contact modal form
+    *
+    * @param   allTheData JSON package being sent from angular
+    * @return          true on successful update of db, false on error.
+    */
+  // ================================================================
+  async contactFormEmailSend(data){
+    let status = null;
+
+    const currentUserEmail = data.iahspEmail;
+
+    console.log(`Sending email to ${currentUserEmail}`);
+
+
+
+    const strEmailSubject = `IAHSP Directory | ${data.subject}`;
+    const strEmailMessage = `
+      You have recieved a message sent from the IAHSP Europe Member Directory contact form.<br/>
+      <br/>
+      Full Name: ${data.fullName}<br/>
+      Email (From): ${data.email}<br/>
+      Subject: ${data.subject}<br/>
+      <br/>
+      <br/>
+      <br/>
+      Message:<br/>
+      <pre>${data.message}</pre>
+
+    `;
+    try {
+      await Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      status = true;
+    } catch (err) {
+      console.log(`Error trying to send email: ${err}`);
+      status = false;
+    }
+
+    return status;
+  } // setUserApproved()
 
 } // Service()
 
