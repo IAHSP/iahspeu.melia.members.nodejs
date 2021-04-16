@@ -3,7 +3,7 @@
   "description": "Cloud Functions changed to just nodejs",
   "scripts": {
     "lint": "eslint .",
-    "start": "npm run forever index.js"
+    "start": "node index.js"
   },
   "engines": {
     "node": "12"

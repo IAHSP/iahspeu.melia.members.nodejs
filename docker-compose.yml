@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    container_name: iahspeu-apiserver
+    environment:
+      DB_HOST: nothing
+      DB_USER: nothing
+      DB_PASSWORD: nothing
+    networks:
+      - sh-dev
+
+networks:
+  sh-dev:
+    external: true
