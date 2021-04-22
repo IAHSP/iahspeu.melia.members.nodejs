@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require("cors");
 
 const membershipsRouter = require('./app/routes/memberships/membershipsRouter');
-const hostname = 'localhost';
-const port = 5000;
+const hostname = process.env.APP_HOSTNAME;
+const port = process.env.APP_PORT;
 
 const app = express();
 
@@ -14,7 +14,8 @@ const app = express();
 const corsWhiteList = [
   "https://iahsp.com",
   "https://www.iahsp.com",
-  "http://localhost:4200"
+  "http://localhost:4200",
+  "http://localhost"
 ]; // corsWhiteList
 
 const corsOptions = {
@@ -23,6 +24,7 @@ const corsOptions = {
     //firebase serve --only functions.  Because then, origin is skipped
     //https://stackoverflow.com/questions/42589882/nodejs-cors-middleware-origin-undefined
     if (corsWhiteList.indexOf(origin) !== -1 || !origin) {
+      console.log(`${origin} allowed by CORS`);
       return callback(null, true);
     } else {
       console.log(`${origin} is not allowed by CORS`);

@@ -11,6 +11,7 @@ const Service = require( './class.service');
 const Registration = require('./class.registration');
 const UnapprovedUsers = require('./class.unapprovedusers');
 const ApproveUser = require('./class.approveuser');
+const Contact = require('./class.contact');
 
 const corsWhiteList = [
   "https://iahsp.com",
@@ -109,30 +110,25 @@ membershipsRouter.route('/register')
 
     fileSaveSuccess = await Registration.processSubmission(req, res, filePath, milliToken);
 
-    //if (fileSaveSuccess.status !== true) {
-      //finalResults = {
-        //"status" : false,
-        //"payload" : fileSaveSuccess.payload
-      //}
+  })
+; // /register
 
-      ////stop execution early and return this error
-      ////res.setHeader('Content-Type', 'application/json');
-      //res.status(200).send(JSON.stringify(finalResults));
-      //res.end();
-      //console.log('failed on Registration.processSubmission');
-      //console.log(fileSaveSuccess.payload);
-    //} else {
-      //finalResults = {
-        //"status" : true,
-        //"payload" : fileSaveSuccess
-      //}
-      //console.log('results to be returned as json:');
-      //console.log(finalResults);
-      ////res.setHeader('Content-Type', 'application/json');
-      //res.status(200).send(JSON.stringify(finalResults));
-      //res.end();
-    //}
+membershipsRouter.route('/update_user_photo')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(async (req, res, next ) => {
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+    // this is only a temp token for upload file storage purposes,
+    // but the user's real milliToken has been passed in via req.body
+    const tmp_milliToken = Date.now().toString();
+    const filePath = __dirname + "/../../../uploads/" + tmp_milliToken;
 
+    fileSaveSuccess = await Registration.changeUserPhoto(req, res, filePath);
 
   })
 ; // /register
@@ -243,6 +239,39 @@ membershipsRouter.route('/set_user_declined')
       finalResults['payload'] = success;
     } catch(err) {
       console.log('approveUser.setUserDeclined failed because of error: ' + err);
+      finalResults['status'] = err;
+    }
+
+
+    // Result is in JSON
+    res.status(200).send(JSON.stringify(finalResults));
+    res.end();
+
+  })
+; // /set_user_declined
+
+membershipsRouter.route('/contact_modal')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(jsonBodyParser, async (req, res, next ) => {
+
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+
+    //TODO: Verify Google ReCaptcha String before continuing
+
+    // Determine function successes.
+    try {
+      console.log(req.body);
+      success = await Contact.sendAgentEmail(req.body);
+      finalResults['status'] = true;
+      finalResults['payload'] = success;
+    } catch(err) {
+      console.log('Contact.contactFormEmailSend failed because of error: ' + err);
       finalResults['status'] = err;
     }
 

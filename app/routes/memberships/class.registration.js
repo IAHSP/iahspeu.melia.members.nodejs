@@ -44,7 +44,13 @@ class Registration {
           name: 'photoProfilePic', maxCount: 1
         },
         {
-          name: 'fileCertificate', maxCount: 1
+          name: 'fileEuAffilAssocCert', maxCount: 1
+        },
+        {
+          name: 'fileEuHomeStageCourseCert', maxCount: 1
+        },
+        {
+          name: 'fileProHomeStagerYetCert', maxCount: 1
         },
         {
           name: 'photosWorkExamples[]', maxCount: 10
@@ -178,6 +184,102 @@ class Registration {
                 })
               ;
             }
+          }); //forEach
+
+        } // if newUserID
+
+        // At this part of the code, either the file foreach is done,
+        // or user creation failed, and the file foreach didn't occur,
+        // but either way, its now time to delete the tmp file directory,
+        // because the uploaded files still exist in it.
+        // recursive, ensures it can do it even if it's not empty
+        this.deleteFileDirectory(filePath);
+
+      } //if (typeof req.files !== 'undefined')
+
+      console.log(`cpUpload has concluded, and the following is the global this.finalResults.`);
+      console.log(this.finalResults);
+
+      res.status(200).send(JSON.stringify(this.finalResults));
+      res.end();
+    }); //cpUpload
+
+    //console.log(`cpUpload has concluded, and the following is the global this.finalResults.`);
+    //console.log(this.finalResults);
+
+    //sending json and ending here doesn't work, i had to do it from within the cpUpload function, otherwise
+    //i can not get useful data into this.finalResults.
+    //res.status(200).send(JSON.stringify(this.finalResults));
+    //res.end();
+
+    return this.finalResults;
+  } // processSubmission
+
+  async changeUserPhoto(req, res, filePath) {
+    //let fileSaveSuccess = true;
+
+    this.finalResults = {
+      "status" : true,
+      "payload" : 'n/a'
+    }
+
+    const upload = multer({dest: filePath});
+    const cpUpload = upload.fields(
+      [
+        {
+          name: 'photoProfilePic', maxCount: 1
+        }
+      ]);
+
+
+    cpUpload(req, res, async (err) => {
+      const fs = require('fs');
+
+      const milliToken = req.body.milliToken;
+      const newUserID = req.body.uid;
+      console.log(req.files);
+      //console.log(req.body);
+
+      if (typeof err !== 'undefined') {
+        myCurrentError = `Could not save files because of error: ${err}`;
+        console.log(myCurrentError);
+        this.finalResults['status'] = false;
+        this.finalResults['payload'] = myCurrentError;
+
+        res.status(200).send(JSON.stringify(this.finalResults));
+        res.end();
+
+        return this.finalResults;
+      }
+
+      if (typeof req.files !== 'undefined') {
+
+        //assuming user creation was successful, we can now process the files
+        if (newUserID !== false) {
+          const fileKeys = Object.keys(req.files);
+          fileKeys.forEach((key) => {
+
+            const originalFilename = req.files[key][0].originalname;
+            const originalFileExtension = originalFilename.split('.').pop();
+            const currentFilename = req.files[key][0].filename;
+            const currentPath = req.files[key][0].destination;
+            //tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
+            const newFilename = `${key}.${originalFileExtension}`;
+            //console.log(`newFilename: ${newFilename}`);
+
+            fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
+                if ( err ) {
+                  myCurrentError = 'Error trying to rename file: ' + err;
+                  console.log(myCurrentError);
+                  this.finalResults['status'] = false;
+                  this.finalResults['payload'] = myCurrentError;
+                }
+            });
+            Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+              .catch((err) => {
+                console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
+              })
+            ;
           }); //forEach
 
         } // if newUserID
