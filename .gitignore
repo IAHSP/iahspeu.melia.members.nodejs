@@ -1,4 +1,5 @@
 node_modules/
 app/utilities/data
 uploads
+_secrets/
 

@@ -4,8 +4,8 @@
 # @version 20200814
 
 # use node
-#FROM node:12.18-alpine3.9
- FROM node:12.18.3
+FROM node:12.18-alpine3.9
+#FROM node:12.18.3
 
 # set working directory
 WORKDIR /
@@ -26,4 +26,5 @@ RUN npm install
 #EXPOSE 5000
 
 # start app
-CMD ["npm", "start"]
+#CMD ["npm", "start"]
+# starting in docker-compose instead...

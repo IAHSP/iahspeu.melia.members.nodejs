@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require("cors");
 
 const membershipsRouter = require('./app/routes/memberships/membershipsRouter');
-const hostname = '0.0.0.0';
-const port = 5000;
+const hostname = process.env.APP_HOSTNAME;
+const port = process.env.APP_PORT;
 
 const app = express();
 

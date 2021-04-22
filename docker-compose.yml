@@ -3,14 +3,17 @@ version: '3'
 services:
   web:
     build: .
+    volumes:
+      - "./_secrets:/app/utilities/data"
+
+    command: npm start
     ports:
-      - "5000:5000"
+      - "9014:5000"
     restart: unless-stopped
     container_name: iahspeu-apiserver
     environment:
-      DB_HOST: nothing
-      DB_USER: nothing
-      DB_PASSWORD: nothing
+      APP_PORT: 5000
+      APP_HOSTNAME: '0.0.0.0'
     networks:
       - sh-dev
 
