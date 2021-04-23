@@ -16,6 +16,8 @@ const Contact = require('./class.contact');
 const corsWhiteList = [
   "https://iahsp.com",
   "https://www.iahsp.com",
+  "https://members.iahspeurope.com",
+  "https://members-staging.iahspeurope.com",
   "http://localhost:4200"
 ]; // corsWhiteList
 
@@ -24,7 +26,7 @@ const corsOptions = {
     //checking if !origin, is used in case we are testing this using
     //firebase serve --only functions.  Because then, origin is skipped
     //https://stackoverflow.com/questions/42589882/nodejs-cors-middleware-origin-undefined
-    if (corsWhiteList.indexOf(origin) !== -1 || !origin) {
+    if (corsWhiteList.indexOf(origin) !== -1) {
       console.log(`${origin} passed CORS`);
       return callback(null, true);
     } else {
