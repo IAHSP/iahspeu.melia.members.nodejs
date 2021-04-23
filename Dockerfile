@@ -3,6 +3,15 @@
 # @author Gabriel Tumbaga <gabriel@iahsp.com
 # @version 20200814
 
+# Build Image
+# 1. docker build -t iahspeu-api:<version> .
+#    example:
+#      docker build -t iahspeu-api:0.0.1 .
+# 2. Update docker-compose.yaml to use new image.
+
+# RELEASE NOTES
+# 0.0.1 - Initial
+
 # use node
 FROM node:12.18-alpine3.9
 #FROM node:12.18.3
@@ -23,8 +32,9 @@ RUN npm install
 #RUN npm run build-server
 
 # expose port for app
+# exposing in docker-compose instead
 #EXPOSE 5000
 
 # start app
-#CMD ["npm", "start"]
 # starting in docker-compose instead...
+#CMD ["npm", "start"]

@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    build: .
+    image: iahspeu-api:0.0.1
     volumes:
       - "./_secrets:/app/utilities/data"
 
@@ -15,8 +15,8 @@ services:
       APP_PORT: 5000
       APP_HOSTNAME: '0.0.0.0'
     networks:
-      - ${NETWORK}
+      - nginx-proxy
 
 networks:
-  ${NETWORK}:
+  nginx-proxy:
     external: true
