@@ -4,6 +4,8 @@ services:
   web:
     build: .
     volumes:
+      - "./app:/app"
+      - "./public:/public"
       - "./_secrets:/app/utilities/data"
 
     command: npm start
@@ -14,9 +16,11 @@ services:
     environment:
       APP_PORT: 5000
       APP_HOSTNAME: '0.0.0.0'
+      APP_ENVIRONMENT: 'dev'
+      CORS_WHITELIST: '["localhost:4200", "members.iahspeurope.com", "members-staging.iahspeurope.com"]'
     networks:
       - sh-dev
 
 networks:
-  sh-dev
+  sh-dev:
     external: true

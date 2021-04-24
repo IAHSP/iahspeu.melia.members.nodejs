@@ -12,6 +12,7 @@
 # RELEASE NOTES
 # 0.0.1 - Initial
 # 0.0.2 - removed 'undefined' from cors whitelist, and added members and members-staging subdomains
+# 0.0.3 - got robots.txt working, and also added cors whitelist to docker-compose files for easy editing
 
 # use node
 FROM node:12.18-alpine3.9

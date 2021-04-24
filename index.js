@@ -11,19 +11,17 @@ const port = process.env.APP_PORT;
 const app = express();
 
 
-const corsWhiteList = [
-  "https://iahsp.com",
-  "https://www.iahsp.com",
-  "http://localhost:4200",
-  "http://localhost"
-]; // corsWhiteList
+const corsWhiteList = JSON.parse(process.env.CORS_WHITELIST);
+if (process.env.APP_ENVIRONMENT === 'dev') {
+  corsWhiteList.push(undefined);
+}
 
 const corsOptions = {
   origin: function (origin, callback) {
     //checking if !origin, is used in case we are testing this using
     //firebase serve --only functions.  Because then, origin is skipped
     //https://stackoverflow.com/questions/42589882/nodejs-cors-middleware-origin-undefined
-    if (corsWhiteList.indexOf(origin) !== -1 || !origin) {
+    if (corsWhiteList.indexOf(origin) !== -1) {
       console.log(`${origin} allowed by CORS`);
       return callback(null, true);
     } else {
@@ -33,7 +31,7 @@ const corsOptions = {
   } // origin: function()
 }; // corsOptions
 
-
+app.use(express.static('public'));
 
 //app.use(bodyParser.json());
 

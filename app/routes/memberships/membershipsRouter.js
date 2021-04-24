@@ -13,13 +13,20 @@ const UnapprovedUsers = require('./class.unapprovedusers');
 const ApproveUser = require('./class.approveuser');
 const Contact = require('./class.contact');
 
-const corsWhiteList = [
-  "https://iahsp.com",
-  "https://www.iahsp.com",
-  "https://members.iahspeurope.com",
-  "https://members-staging.iahspeurope.com",
-  "http://localhost:4200"
-]; // corsWhiteList
+const corsWhiteList = JSON.parse(process.env.CORS_WHITELIST);
+if (process.env.APP_ENVIRONMENT === 'dev') {
+  corsWhiteList.push(undefined);
+}
+
+
+//const corsWhiteList = [
+  //"https://iahsp.com",
+  //"https://www.iahsp.com",
+  //"https://members.iahspeurope.com",
+  //"https://members-staging.iahspeurope.com",
+  //undefined,
+  //"http://localhost:4200"
+//]; // corsWhiteList
 
 const corsOptions = {
   origin: function (origin, callback) {
