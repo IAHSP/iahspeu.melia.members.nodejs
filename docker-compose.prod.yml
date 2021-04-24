@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    image: iahspeu-api:0.0.2
+    image: iahspeu-api:0.0.3
     volumes:
       - "./_secrets:/app/utilities/data"
 
