@@ -12,7 +12,7 @@ const app = express();
 
 
 const corsWhiteList = JSON.parse(process.env.CORS_WHITELIST);
-if (process.env.APP_ENVIRONMENT == 'dev') {
+if (process.env.APP_ENVIRONMENT === 'dev') {
   corsWhiteList.push(undefined);
 }
 
