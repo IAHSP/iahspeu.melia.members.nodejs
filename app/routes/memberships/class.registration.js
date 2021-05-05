@@ -186,6 +186,7 @@ class Registration {
                     this.finalResults['payload'] = myCurrentError;
                   }
               });
+              await Service.updateFileField(newUserID, `${key}_file`, newFilename);
               await Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
                 .catch((err) => {
                   console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
