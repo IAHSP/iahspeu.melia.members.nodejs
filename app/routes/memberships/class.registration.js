@@ -19,6 +19,12 @@ class Registration {
     this.userData = null;
   }
 
+  async asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+      await callback(array[index], index, array);
+    }
+  }
+
   setUserDataForCreation(userData) {
     this.userData = userData;
     //console.log('setUserDataForCreation has successfully been called, userData to follow:');
@@ -63,7 +69,8 @@ class Registration {
     cpUpload(req, res, async (err) => {
       const fs = require('fs');
 
-      //console.log(req.files);
+      console.log('this is the req.files obj from within cpUpload');
+      console.log(req.files);
       //console.log(req.body);
       if (typeof err !== 'undefined') {
         myCurrentError = `Could not save files because of error: ${err}`;
@@ -88,7 +95,7 @@ class Registration {
         // lets also inject the number of files to loop over for work examples.
         // this will be used on the approval page, showing the person's work,
         // and maybe even on the member page, if that gets implemented.
-        const filesCount = Object.keys(req.files['photosWorkExamples[]']).length;
+        const filesCount = (req.files['photosWorkExamples[]'] !== undefined) ? Object.keys(req.files['photosWorkExamples[]']).length : 0;
         req.body.photosWorkExampleCount = filesCount;
 
         //req.body.milliToken = milliToken;
@@ -132,10 +139,11 @@ class Registration {
         if (newUserID !== false) {
           console.log(`Found newUserID: ${newUserID}, so now file foreach can begin.`);
           const fileKeys = Object.keys(req.files);
-          fileKeys.forEach((key) => {
+
+          await this.asyncForEach(fileKeys, async (key) => {
             if (key === 'photosWorkExamples[]') {
               //handle the multi upload
-              req.files[key].forEach((v, k) => {
+              req.files[key].forEach(async (v, k) => {
                 //console.log(`k: ${k} , v: ${v}`);
                 //console.log(v);
                 const originalFilename = v.originalname;
@@ -154,7 +162,7 @@ class Registration {
                     this.finalResults['payload'] = myCurrentError;
                   }
                 });
-                Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+                await Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
                   .catch((err) => {
                     console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
                   })
@@ -178,7 +186,7 @@ class Registration {
                     this.finalResults['payload'] = myCurrentError;
                   }
               });
-              Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+              await Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
                 .catch((err) => {
                   console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
                 })
