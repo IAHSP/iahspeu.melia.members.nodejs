@@ -51,6 +51,13 @@ class Service {
     });
   }
 
+  async updateFileField(theUID, fieldName, fileName) {
+    const usersRef = this.db.collection('users');
+    return await usersRef.doc(theUID).update({
+      [fieldName] : fileName
+    });
+  }
+
   // ================================================================
     /**
     * Set User's isApproved field to true
