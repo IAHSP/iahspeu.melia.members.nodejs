@@ -13,6 +13,7 @@
 # 0.0.1 - Initial
 # 0.0.2 - removed 'undefined' from cors whitelist, and added members and members-staging subdomains
 # 0.0.3 - got robots.txt working, and also added cors whitelist to docker-compose files for easy editing
+# 0.0.4 - got unrequired fields working, introduced an asyncawait foreach, and accepting different file types for certificates
 
 # use node
 FROM node:12.18-alpine3.9
