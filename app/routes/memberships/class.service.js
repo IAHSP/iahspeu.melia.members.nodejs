@@ -387,10 +387,10 @@ class Service {
       try {
         success = false;
         charge = await stripe.charges.create({
-          amount: 2000,
-          currency: 'usd',
+          amount: userCardInfo.strFinalPrice,
+          currency: 'eur',
           source: tokenID,
-          description: 'My First Test Charge (created for API docs)',
+          description: 'IAHSP Europe Membership',
         });
       } catch(err) {
         success = false;
