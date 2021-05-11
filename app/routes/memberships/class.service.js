@@ -364,6 +364,12 @@ class Service {
           exp_month: userCardInfo.strBillingMonth,
           exp_year: userCardInfo.strBillingYear,
           cvc: userCardInfo.strBillingSecurityCode,
+          name: `${userCardInfo.strBillingFirstName} ${userCardInfo.strBillingLastName}`,
+          address_line1: userCardInfo.strBillingStreet,
+          address_city: userCardInfo.strBillingCity,
+          address_state: userCardInfo.strBillingState,
+          address_zip: userCardInfo.strBillingZip,
+          address_country: userCardInfo.strBillingCountry
         },
       });
     } catch (err) {
@@ -387,7 +393,7 @@ class Service {
       try {
         success = false;
         charge = await stripe.charges.create({
-          amount: userCardInfo.strFinalPrice,
+          amount: `${userCardInfo.strFinalPrice}00`,
           currency: 'eur',
           source: tokenID,
           description: 'IAHSP Europe Membership',
