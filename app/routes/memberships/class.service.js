@@ -221,7 +221,7 @@ class Service {
   * @return          true on success, false on failure;
   */
   // ================================================================
-  async createNewUser(userData) {
+  async createNewUser(userData, createdByAdmin = false) {
     let userID = false;
     let setDoc = null;
     let isSuccess = false;
@@ -231,7 +231,7 @@ class Service {
     };
 
 
-    const strPhotoURL = `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
+    const strPhotoURL = (createdByAdmin === true) ? userData.photoURL : `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
     //console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still
@@ -242,7 +242,7 @@ class Service {
     return await admin.auth().createUser({
       email: userData.email,
       emailVerified: false,
-      password: userData.password,
+      password: (createdByAdmin === true) ? `${userData.milliToken}${userData.milliToken}` : userData.password,
       displayName: userData.firstName + " " + userData.lastName,
       photoURL: strPhotoURL,
       disabled: false
@@ -257,8 +257,8 @@ class Service {
 
           const usersRef = this.db.collection('users');
           setDoc = await usersRef.doc(userRecord.uid).set({
-            displayName: userRecord.displayName,
-            email: userRecord.email,
+            displayName: (createdByAdmin === true) ? userData.displayName : userRecord.displayName,
+            email: (createdByAdmin === true) ? userData.email : userRecord.email,
             photoURL : strPhotoURL,
 
             // Additional meta.
@@ -275,9 +275,9 @@ class Service {
             zip: userData.zip,
             countryCustom: userData.country,
             country: userData.country,
-            isAdmin: false,
-            isDisabled: userRecord.disabled,
-            isApproved: false,
+            isAdmin: (createdByAdmin === true) ? userData.isAdmin : false,
+            isDisabled: (createdByAdmin === true) ? userData.isDisabled : userRecord.disabled,
+            isApproved: (createdByAdmin === true) ? userData.isApproved : false,
             expiration: userData.expiration,
             euHomeStagingCourse: userData.euHomeStagingCourse,
             description: userData.description,

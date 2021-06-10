@@ -224,6 +224,57 @@ class Registration {
     return this.finalResults;
   } // processSubmission
 
+  async processAdminAddNewUser(req, res, filePath, milliToken) {
+    //console.log('processAdminAddNewUser successfully called.');
+    //console.log(req.body);
+
+    // lets take the items in the body, and build out the real object to be inserted.
+    const finalFields = {
+      address1: req.body.address1,
+      address2: req.body.address2,
+      aspid: null,
+      businessEmail: req.body.businessEmail,
+      businessName: req.body.businessName,
+      checkboxEthicsCode: '',
+      checkboxPrivacyPolicy: '',
+      checkboxStatue: '',
+      checkboxTermsConditions: '',
+      city: req.body.city,
+      country: req.body.country,
+      countryCustom: req.body.country,
+      description: req.body.description,
+      displayName: req.body.displayName,
+      dob: '',
+      email: req.body.email,
+      euAffilicatedAssociation: '',
+      euHomeStagingCourse: '',
+      expiration: req.body.expiration,
+      firstName: req.body.firstName,
+      initialSignUp: req.body.expiration,
+      isASP: false,
+      isAdmin: false,
+      isApproved: true,
+      isDisabled: false,
+      lastName: req.body.lastName,
+      milliToken: milliToken,
+      phone: req.body.phone,
+      photoURL: 'https://upload.wikimedia.org/wikipedia/en/b/b1/Portrait_placeholder.png',
+      photosWorkExampleCount: 0,
+      showPhone: req.body.showPhone,
+      txtHowFoundUs: '',
+      txtYearsInBusiness: '',
+      urlFacebook: req.body.urlFacebook,
+      urlInstagram: req.body.urlInstagram,
+      urlLinkedIn: req.body.urlLinkedIn,
+      urlPinterest: req.body.urlPinterest,
+      urlWeb: req.body.urlWeb,
+      vatNumber: req.body.vatNumber,
+      zip: req.body.zip
+    }
+
+    return await Service.createNewUser(finalFields, true);
+  }
+
   async changeUserPhoto(req, res, filePath) {
     //let fileSaveSuccess = true;
 
