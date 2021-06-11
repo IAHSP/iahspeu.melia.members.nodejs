@@ -24,11 +24,12 @@ class Mailer {
   constructor() {
   } //constructor
 
-  async fnSendMail (strEmail_from = smtpAccountInfo.email, strEmail_to, strEmail_CC, strEmail_BCC, strEmail_subject, strMessage, isHTML) {
+  async fnSendMail (strEmail_from = smtpAccountInfo.email, strEmail_replyTo, strEmail_to, strEmail_CC, strEmail_BCC, strEmail_subject, strMessage, isHTML) {
     // Email sender and contents.
     var mailOptions = {
       from: strEmail_from,
       to: strEmail_to,
+      replyTo: strEmail_replyTo,
       subject: strEmail_subject
     }; // mailOptions
 
