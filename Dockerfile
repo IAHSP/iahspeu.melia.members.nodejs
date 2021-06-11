@@ -13,6 +13,9 @@
 # 0.0.1 - Initial
 # 0.0.2 - removed 'undefined' from cors whitelist, and added members and members-staging subdomains
 # 0.0.3 - got robots.txt working, and also added cors whitelist to docker-compose files for easy editing
+# 0.0.4 - got unrequired fields working, introduced an asyncawait foreach, and accepting different file types for certificates
+# 0.0.5 - made changes to grab charged price from req, and use EUR instead of USD
+# 0.0.6 - fixed price, added billing details
 
 # use node
 FROM node:12.18-alpine3.9

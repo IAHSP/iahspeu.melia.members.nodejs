@@ -122,6 +122,27 @@ membershipsRouter.route('/register')
   })
 ; // /register
 
+membershipsRouter.route('/admin_register')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(jsonBodyParser, async (req, res, next ) => {
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+    const milliToken = Date.now().toString();
+    const filePath = __dirname + "/../../../uploads/" + milliToken;
+
+    processResults = await Registration.processAdminAddNewUser(req, res, filePath, milliToken);
+
+    res.status(200).send(JSON.stringify(processResults));
+    res.end();
+
+  })
+; // /admin_register
+
 membershipsRouter.route('/update_user_photo')
   .all((req, res, next) => {
     res.setHeader('Content-Type', 'application/json');
