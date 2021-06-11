@@ -171,7 +171,7 @@ class Service {
       default:
         reasonTxt = `
           Hello ${firstName},<br/>
-          We regret to inform you that your membership application has been <b/>declined for the following reason:</b>
+          We regret to inform you that your membership application has been <b>declined for the following reason:</b>
         `;
     }
 
