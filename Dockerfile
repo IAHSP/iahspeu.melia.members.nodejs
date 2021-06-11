@@ -16,6 +16,7 @@
 # 0.0.4 - got unrequired fields working, introduced an asyncawait foreach, and accepting different file types for certificates
 # 0.0.5 - made changes to grab charged price from req, and use EUR instead of USD
 # 0.0.6 - fixed price, added billing details
+# 0.0.7 - admin add user, and fixed email text, and reply-to
 
 # use node
 FROM node:12.18-alpine3.9
