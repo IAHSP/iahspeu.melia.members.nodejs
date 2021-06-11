@@ -73,6 +73,8 @@ class Service {
     const currentData = await usersRef.doc(theUID).get();
     const currentUserEmail = currentData.data().email;
 
+    const firstName = currentData.data().firstName;
+
     try {
       //NOTE!  using .set() will override everything
       //       using .update() will update only the fields provided,
@@ -87,15 +89,16 @@ class Service {
 
     if (status !== false) {
       // approval worked, so lets send email notification now...
-      const strEmailSubject = `Your application to IAHSP Europe has been approved!`;
+      const strEmailSubject = `Your Membership Application has been approved`;
       const strEmailMessage = `
-        Congratulations! Your application to IAHSP Europe has been approved!<br/>
+        Hello ${firstName},<br/>
+        We would like to inform you that your Membership Application has been <b>approved</b>. In order to start benefiting from your membership, please complete your registration and make a payment <a href="https://members.iahspeurope.com/">here</a>.
         <br/>
-        You can now access the site here:<br/>
-        [LINK TO SITE WILL BE HERE SOON]
+        <br/>
+        Best regards from your IAHSP Europe Team
 
       `;
-      Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      Mailer.fnSendMail(null, "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
     }
 
     return status;
@@ -116,6 +119,8 @@ class Service {
     const currentData = await usersRef.doc(theUID).get();
     const currentToken = currentData.data().milliToken;
     const currentUserEmail = currentData.data().email;
+
+    const firstName = currentData.data().firstName;
 
     let status = null;
 
@@ -164,7 +169,10 @@ class Service {
         reasonTxt = 'Sorry, your application to IAHSP Europe has been declined, due to reason 004.';
         break;
       default:
-        reasonTxt = 'Sorry, your application to IAHSP Europe has been declined.';
+        reasonTxt = `
+          Hello ${firstName},
+          We regret to inform you that your membership application has been <b?declined for the following reason:</b>
+        `;
     }
 
     let notesTxt = theNotes;
@@ -174,13 +182,16 @@ class Service {
     if (status !== false) {
       // all the things worked, so we can send an email to the user
       // that they got declined.
-      const strEmailSubject = `Your application to IAHSP Europe has been declined.`;
+      const strEmailSubject = `Your membership application has been declined`;
       const strEmailMessage = `
         ${reasonTxt}<br/>
         <br/>
         ${notesTxt}
+        <br/>
+        <br/>
+        Kind regards
       `;
-      Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      Mailer.fnSendMail(null, "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
     }
 
 
@@ -221,7 +232,7 @@ class Service {
   * @return          true on success, false on failure;
   */
   // ================================================================
-  async createNewUser(userData) {
+  async createNewUser(userData, createdByAdmin = false) {
     let userID = false;
     let setDoc = null;
     let isSuccess = false;
@@ -231,7 +242,7 @@ class Service {
     };
 
 
-    const strPhotoURL = `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
+    const strPhotoURL = (createdByAdmin === true) ? userData.photoURL : `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
     //console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still
@@ -242,7 +253,7 @@ class Service {
     return await admin.auth().createUser({
       email: userData.email,
       emailVerified: false,
-      password: userData.password,
+      password: (createdByAdmin === true) ? `${userData.milliToken}${userData.milliToken}` : userData.password,
       displayName: userData.firstName + " " + userData.lastName,
       photoURL: strPhotoURL,
       disabled: false
@@ -257,8 +268,8 @@ class Service {
 
           const usersRef = this.db.collection('users');
           setDoc = await usersRef.doc(userRecord.uid).set({
-            displayName: userRecord.displayName,
-            email: userRecord.email,
+            displayName: (createdByAdmin === true) ? userData.displayName : userRecord.displayName,
+            email: (createdByAdmin === true) ? userData.email : userRecord.email,
             photoURL : strPhotoURL,
 
             // Additional meta.
@@ -275,9 +286,9 @@ class Service {
             zip: userData.zip,
             countryCustom: userData.country,
             country: userData.country,
-            isAdmin: false,
-            isDisabled: userRecord.disabled,
-            isApproved: false,
+            isAdmin: (createdByAdmin === true) ? userData.isAdmin : false,
+            isDisabled: (createdByAdmin === true) ? userData.isDisabled : userRecord.disabled,
+            isApproved: (createdByAdmin === true) ? userData.isApproved : false,
             expiration: userData.expiration,
             euHomeStagingCourse: userData.euHomeStagingCourse,
             description: userData.description,
@@ -458,7 +469,7 @@ class Service {
 
     `;
     try {
-      await Mailer.fnSendMail(null, currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      await Mailer.fnSendMail(null, "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
       status = true;
     } catch (err) {
       console.log(`Error trying to send email: ${err}`);
