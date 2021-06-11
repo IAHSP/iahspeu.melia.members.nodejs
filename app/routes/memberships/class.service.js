@@ -170,8 +170,8 @@ class Service {
         break;
       default:
         reasonTxt = `
-          Hello ${firstName},
-          We regret to inform you that your membership application has been <b?declined for the following reason:</b>
+          Hello ${firstName},<br/>
+          We regret to inform you that your membership application has been <b/>declined for the following reason:</b>
         `;
     }
 
