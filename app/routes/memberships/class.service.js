@@ -98,7 +98,7 @@ class Service {
         Best regards from your IAHSP Europe Team
 
       `;
-      Mailer.fnSendMail(null, "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      Mailer.fnSendMail("info@iahspeurope.com", "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
     }
 
     return status;
@@ -191,7 +191,7 @@ class Service {
         <br/>
         Kind regards
       `;
-      Mailer.fnSendMail(null, "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      Mailer.fnSendMail("info@iahspeurope.com", "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
     }
 
 
@@ -469,7 +469,7 @@ class Service {
 
     `;
     try {
-      await Mailer.fnSendMail(null, "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
+      await Mailer.fnSendMail("info@iahspeurope.com", "info@iahspeurope.com", currentUserEmail, "", "", strEmailSubject, strEmailMessage, true);
       status = true;
     } catch (err) {
       console.log(`Error trying to send email: ${err}`);

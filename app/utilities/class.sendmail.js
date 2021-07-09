@@ -7,11 +7,13 @@ const smtpAccountInfo = require("./data/smtp-settings.json");
 //console.log(smtpAccountInfo);
 
 const smtpTransport = nodemailer.createTransport({
-  service: "Gmail",
+  host: smtpAccountInfo.host,
+  port: 465,
+  secure: true,
   auth: {
-    user: smtpAccountInfo.email,
+    user: smtpAccountInfo.id,
     pass: smtpAccountInfo.password
-  } // auth
+  }
 });
 
 // ================================================================
