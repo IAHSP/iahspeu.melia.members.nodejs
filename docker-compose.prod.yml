@@ -2,7 +2,10 @@ version: '3'
 
 services:
   web:
-    image: iahspeu-api:0.0.8
+    image: iahspeu-api:titan-latest
+    build:
+      context: .
+      dockerfile: Dockerfile
     volumes:
       - "./_secrets:/app/utilities/data"
 
