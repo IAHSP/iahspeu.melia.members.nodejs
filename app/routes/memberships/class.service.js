@@ -242,7 +242,7 @@ class Service {
     };
 
 
-    const strPhotoURL = (createdByAdmin === true) ? userData.photoURL : `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${userData.milliToken}%2FphotoProfilePic.jpg?alt=media`;
+    const strPhotoURL = (createdByAdmin === true) ? userData.photoURL : `https://upload.wikimedia.org/wikipedia/en/b/b1/Portrait_placeholder.png`;
     //console.log(`strPhotoURL: ${strPhotoURL}`);
 
     //using this as a default date, to speicy after they have been approved, that they still
