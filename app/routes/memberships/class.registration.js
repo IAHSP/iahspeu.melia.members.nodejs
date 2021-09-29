@@ -186,7 +186,14 @@ class Registration {
                     this.finalResults['payload'] = myCurrentError;
                   }
               });
-              await Service.updateFileField(newUserID, `${key}_file`, newFilename);
+              const cacheBust = Date.now().toString();
+              const thePicURL = `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${milliToken}%2F${newFilename}?alt=media&cachebust=${cacheBust}`;
+              await Service.updateFileField(newUserID, `photoURL`, thePicURL)
+                .then((d) => {
+                  console.log(`new user registration, just updated thePicURL to the correct one.`);
+                  return d;
+                })
+                .catch();
               await Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
                 .catch((err) => {
                   console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
@@ -316,31 +323,33 @@ class Registration {
 
         //assuming user creation was successful, we can now process the files
         if (newUserID !== false) {
-          const fileKeys = Object.keys(req.files);
-          fileKeys.forEach((key) => {
+          //const fileKeys = Object.keys(req.files);
 
-            const originalFilename = req.files[key][0].originalname;
-            const originalFileExtension = originalFilename.split('.').pop();
-            const currentFilename = req.files[key][0].filename;
-            const currentPath = req.files[key][0].destination;
-            //tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
-            const newFilename = `${key}.${originalFileExtension}`;
-            //console.log(`newFilename: ${newFilename}`);
+          const originalFilename = req.files['photoProfilePic'][0].originalname;
+          const originalFileExtension = originalFilename.split('.').pop();
+          const currentFilename = req.files['photoProfilePic'][0].filename;
+          const currentPath = req.files['photoProfilePic'][0].destination;
+          //tmpFilePath = currentPath; //storing directory so we can delete it after the foreach
+          const newFilename = `${'photoProfilePic'}.${originalFileExtension}`;
+          //console.log(`newFilename: ${newFilename}`);
 
-            fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
-                if ( err ) {
-                  myCurrentError = 'Error trying to rename file: ' + err;
-                  console.log(myCurrentError);
-                  this.finalResults['status'] = false;
-                  this.finalResults['payload'] = myCurrentError;
-                }
-            });
-            Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
-              .catch((err) => {
-                console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
-              })
-            ;
-          }); //forEach
+          fs.rename(`${currentPath}/${currentFilename}`, `${currentPath}/${newFilename}`, (err) => {
+              if ( err ) {
+                myCurrentError = 'Error trying to rename file: ' + err;
+                console.log(myCurrentError);
+                this.finalResults['status'] = false;
+                this.finalResults['payload'] = myCurrentError;
+              }
+          });
+
+          const cacheBust = Date.now().toString();
+          const thePicURL = `https://firebasestorage.googleapis.com/v0/b/iahsp-europe.appspot.com/o/${milliToken}%2F${newFilename}?alt=media&cachebust=${cacheBust}`;
+          await Service.updateFileField(newUserID, `photoURL`, thePicURL);
+          await Service.uploadFile(`${currentPath}/${newFilename}`, `${milliToken}/${newFilename}`)
+            .catch((err) => {
+              console.log(`unable to upload ${newFilename} to fire storage because error: ${err}`);
+            })
+          ;
 
         } // if newUserID
 
