@@ -311,6 +311,37 @@ membershipsRouter.route('/contact_modal')
     res.end();
 
   })
+; // /contact_modal
+
+membershipsRouter.route('/delete_user')
+  .all((req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  })
+  .post(jsonBodyParser, async (req, res, next ) => {
+
+    let finalResults = {
+      "status" : false,
+      "payload" : null
+    }
+
+    const userID = req.body.uid;
+    // Determine function successes.
+    try {
+      success = await approveUser.deleteTheUser(userID);
+      finalResults['status'] = true;
+      finalResults['payload'] = success;
+    } catch(err) {
+      console.log('approveUser.deleteTheUser failed because of error: ' + err);
+      finalResults['status'] = err;
+    }
+
+
+    // Result is in JSON
+    res.status(200).send(JSON.stringify(finalResults));
+    res.end();
+
+  })
 ; // /set_user_declined
 
 module.exports = membershipsRouter;
