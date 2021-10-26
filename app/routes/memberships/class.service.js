@@ -479,6 +479,50 @@ class Service {
     return status;
   } // setUserApproved()
 
+  async deleteTheUser(theUID){
+    const usersRef = this.db.collection('users');
+
+    // lets first retrieve the users doc so we can get the milliToken from it.
+    const currentData = await usersRef.doc(theUID).get();
+    const currentToken = currentData.data().milliToken;
+    const currentUserEmail = currentData.data().email;
+
+    const firstName = currentData.data().firstName;
+
+    let status = null;
+
+    try {
+      //NOTE!  using .set() will override everything
+      //       using .update() will update only the fields provided,
+      //       while the rest of the fields stay intact.
+      status = await usersRef.doc(theUID).delete();
+      console.log(`Document for: ${theUID} has been successully deleted.`);
+    } catch (err) {
+      status = false;
+      console.log(`Unable to remove document: '${theUID}' because of error:  ${err}`);
+    }
+
+    status =  this.bucket.deleteFiles({
+      prefix: `${currentToken}/`
+    }, (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(`All the Firebase Storage files in /${currentToken}/ have been deleted.`);
+      }
+    });
+
+    try {
+      status = await admin.auth().deleteUser(theUID);
+      console.log(`User: ${theUID} has been successully deleted.`);
+    } catch(err) {
+      status = false;
+      console.log(`Unable to deleteUser: '${theUID}' because of error:  ${err}`);
+    }
+
+    return status;
+  } // deleteTheUser()
+
 } // Service()
 
 module.exports = new Service;
