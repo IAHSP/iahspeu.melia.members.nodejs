@@ -257,7 +257,7 @@ class Registration {
       euHomeStagingCourse: '',
       expiration: req.body.expiration,
       firstName: req.body.firstName,
-      initialSignUp: req.body.expiration,
+      initialSignUp: req.body.initialSignUp,
       isASP: false,
       isAdmin: false,
       isApproved: true,
